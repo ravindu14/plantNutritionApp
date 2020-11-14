@@ -6,21 +6,61 @@ import { LinearGradient } from "expo-linear-gradient";
 import { cameraPlaceholder } from "@app/assets";
 import ScrollableAvoidKeyboardComponent from "@app/components/common/ScrollableAvoidKeyboardComponent";
 import { navigate, navigateAndReset } from "@app/actions/routes";
-import { NameValidator } from "@app/validators";
+import { NumberValidator } from "@app/validators";
 import ValidationInput from "../../../components/common/ValidationInput";
+import ImageUpload from "@app/components/common/ImageUpload";
+import { getRemedyDetails } from "@app/actions/remedy";
 
 class ScanRemedy extends Component {
+  constructor() {
+    super();
+
+    this.state = {
+      image: "",
+      baseString: "",
+      phValue: "",
+      cvValue: "",
+      mvValue: "",
+      cValue: "",
+    };
+  }
+
+  onImageUpload = (image, baseString) => {
+    this.setState({
+      ...this.state,
+      image,
+      baseString,
+    });
+  };
+
+  onChangeFormField = (value) => {
+    this.setState({
+      ...this.state,
+      ...value,
+    });
+  };
+
+  onSubmitDetails = () => {
+    const { image, baseString, phValue, mvValue, cValue, cvValue } = this.state;
+
+    this.props.getRemedyDetails(image, baseString, {
+      phValue,
+      mvValue,
+      cValue,
+      cvValue,
+    });
+  };
+
   render() {
     const { themedStyle } = this.props;
+    const { phValue, cValue, cvValue, mvValue } = this.state;
+
     return (
       <ScrollableAvoidKeyboardComponent style={themedStyle.container}>
         <LinearGradient colors={["#077806", "#ffffff"]} style={{ flex: 1 }}>
           <View style={themedStyle.mainContainer}>
             <View style={[themedStyle.imageContainer]}>
-              <Image
-                source={cameraPlaceholder}
-                style={{ width: "100%", height: 250 }}
-              />
+              <ImageUpload onFinishUploading={this.onImageUpload} />
             </View>
             <View style={themedStyle.valueContainer}>
               <Text
@@ -31,44 +71,37 @@ class ScanRemedy extends Component {
               <ValidationInput
                 style={themedStyle.textInput}
                 label="PH Value"
-                validator={NameValidator}
-                value={""}
-                onChangeText={() => {}}
+                validator={NumberValidator}
+                value={phValue}
+                onChangeText={(phValue) => this.onChangeFormField({ phValue })}
               />
               <ValidationInput
                 style={themedStyle.textInput}
                 label="CV Value"
-                validator={NameValidator}
-                value={""}
-                onChangeText={() => {}}
+                validator={NumberValidator}
+                value={cvValue}
+                onChangeText={(cvValue) => this.onChangeFormField({ cvValue })}
               />
               <ValidationInput
                 style={themedStyle.textInput}
                 label="MV Value"
-                validator={NameValidator}
-                value={""}
-                onChangeText={() => {}}
+                validator={NumberValidator}
+                value={mvValue}
+                onChangeText={(mvValue) => this.onChangeFormField({ mvValue })}
               />
               <ValidationInput
                 style={themedStyle.textInput}
                 label="C Value"
-                validator={NameValidator}
-                value={""}
-                onChangeText={() => {}}
-              />
-              <ValidationInput
-                style={themedStyle.textInput}
-                label="Crop Type"
-                validator={NameValidator}
-                value={""}
-                onChangeText={() => {}}
+                validator={NumberValidator}
+                value={cvValue}
+                onChangeText={(cvValue) => this.onChangeFormField({ cvValue })}
               />
             </View>
             <View style={themedStyle.buttonContainer}>
               <Button
                 size="large"
                 style={themedStyle.SignUpButton}
-                onPress={() => this.props.navigate("Remedy Results")}
+                onPress={this.onSubmitDetails}
               >
                 Predict
               </Button>
@@ -83,6 +116,7 @@ class ScanRemedy extends Component {
 const Actions = {
   navigate,
   navigateAndReset,
+  getRemedyDetails,
 };
 
 const ScanRemedyContainer = withStyles(ScanRemedy, () => ({
@@ -90,11 +124,9 @@ const ScanRemedyContainer = withStyles(ScanRemedy, () => ({
     flex: 1,
   },
   imageContainer: {
-    justifyContent: "center",
+    flex: 1,
     alignItems: "center",
-    minHeight: 250,
-    marginVertical: 8,
-    marginHorizontal: 8,
+    justifyContent: "center",
   },
   mainContainer: {
     flex: 1,

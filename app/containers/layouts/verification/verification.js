@@ -3,8 +3,8 @@ import {
   View,
   StyleSheet,
   Image,
-  ActivityIndicator,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import { List, withStyles, Avatar, Text, Button } from "react-native-ui-kitten";
 import { connect } from "react-redux";
@@ -14,81 +14,45 @@ import ScrollableAvoidKeyboardComponent from "@app/components/common/ScrollableA
 import { navigate, navigateAndReset } from "@app/actions/routes";
 import { NameValidator } from "@app/validators";
 import ValidationInput from "../../../components/common/ValidationInput";
-import Alert from "@app/components/Alert";
+import {
+  initializeVerification,
+  getVerification,
+} from "@app/actions/verification";
 import { ASYNC_STATUS } from "@app/constants/async";
+import Alert from "@app/components/Alert";
 
-import { getResearchDetails, resetResearch } from "@app/actions/remedy";
-import { createVerification } from "@app/actions/verification";
-
-class RemedyResearches extends Component {
+class Verification extends Component {
   componentDidMount() {
     const {
-      remedy: { remedyClass },
+      initializeVerification,
+      getVerification,
+      navigation,
       user: { researchCenter },
     } = this.props;
 
-    this.props.resetResearch();
-    this.props.getResearchDetails({ deficiency: remedyClass, researchCenter });
+    console.log(this.props.navigation.state.params.verificationId);
+
+    initializeVerification();
+    getVerification({
+      verificationId: navigation.state.params.verificationId,
+      researchCenter,
+    });
   }
 
-  onRequestVerifications = () => {
-    const {
-      user: { username, researchCenter },
-      research: { deficiency, findings, products },
-      remedy: { image, result_percentage, nValue, pValue, kValue },
-    } = this.props;
-
-    this.props.createVerification({
-      verificationId: `${username}-${new Date().toString()}`,
-      username,
-      deficiency,
-      stage: this.getRemedyStage(result_percentage),
-      findings,
-      products,
-      researchCenter,
-      image,
-      nValue,
-      pValue,
-      kValue,
-      checked: false,
-    });
-  };
-
-  getRemedyStage = (percentage) => {
-    let stage = "Stage 1";
-
-    if (parseFloat(percentage) < 30) {
-      stage = "Stage 1";
-    } else if (parseFloat(percentage) > 30 && parseFloat(percentage) < 70) {
-      stage = "Stage 2";
-    } else if (parseFloat(percentage) > 70) {
-      stage = "Stage 3";
-    } else {
-      stage = "Stage 1";
-    }
-
-    return stage;
-  };
-
   render() {
-    const {
-      themedStyle,
-      remedy: { image },
-      notification,
-      research,
-      status,
-    } = this.props;
-
+    const { themedStyle, status, notification, verification } = this.props;
     return (
       <ScrollableAvoidKeyboardComponent style={themedStyle.container}>
         <LinearGradient colors={["#077806", "#ffffff"]} style={{ flex: 1 }}>
           <View style={themedStyle.mainContainer}>
-            <View style={[themedStyle.imageContainer]}>
-              <Image
-                source={{ uri: image }}
-                style={{ width: 200, height: 200 }}
-              />
-            </View>
+            {verification.image !== "" && (
+              <View style={[themedStyle.imageContainer]}>
+                <Image
+                  source={{ uri: verification.image }}
+                  style={{ width: 200, height: 200 }}
+                />
+              </View>
+            )}
             {notification !== null && (
               <Alert status={Alert.STATUS.DANGER}>{notification}</Alert>
             )}
@@ -97,7 +61,7 @@ class RemedyResearches extends Component {
                 <ActivityIndicator size="large" color="#ffffff" />
               </View>
             )}
-            {research && (
+            {verification && (
               <View style={themedStyle.researchContainer}>
                 <View style={themedStyle.topic}>
                   <Text
@@ -110,12 +74,12 @@ class RemedyResearches extends Component {
                       fontWeight: "bold",
                     }}
                   >
-                    {research.deficiency}
+                    {verification.deficiency}
                   </Text>
                 </View>
                 <View style={themedStyle.findings}>
                   <Text style={{ color: "#ffffff", fontSize: 14 }}>
-                    {research.findings}
+                    {verification.findings}
                   </Text>
                 </View>
                 <Text
@@ -131,7 +95,7 @@ class RemedyResearches extends Component {
                   Products
                 </Text>
                 <ScrollView horizontal={true} style={themedStyle.products}>
-                  {research.products.map((product, index) => {
+                  {verification.products.map((product, index) => {
                     return (
                       <View key={index} style={themedStyle.productCard}>
                         {product.verified && (
@@ -181,15 +145,20 @@ class RemedyResearches extends Component {
                     );
                   })}
                 </ScrollView>
+                <View style={themedStyle.verificationNote}>
+                  <Text style={{ color: "#ffffff", fontSize: 14 }}>
+                    {verification.verificationNote}
+                  </Text>
+                </View>
               </View>
             )}
             <View style={themedStyle.buttonContainer}>
               <Button
                 size="large"
                 style={themedStyle.SignUpButton}
-                onPress={this.onRequestVerifications}
+                onPress={() => this.props.navigateAndReset("Dashboard")}
               >
-                Request Verification
+                Got it
               </Button>
             </View>
           </View>
@@ -202,12 +171,11 @@ class RemedyResearches extends Component {
 const Actions = {
   navigate,
   navigateAndReset,
-  getResearchDetails,
-  resetResearch,
-  createVerification,
+  initializeVerification,
+  getVerification,
 };
 
-const RemedyResearchesContainer = withStyles(RemedyResearches, () => ({
+const VerificationContainer = withStyles(Verification, () => ({
   container: {
     flex: 1,
   },
@@ -241,6 +209,14 @@ const RemedyResearchesContainer = withStyles(RemedyResearches, () => ({
     padding: 10,
     borderRadius: 10,
   },
+  verificationNote: {
+    justifyContent: "center",
+    backgroundColor: "#c77512",
+    marginHorizontal: 8,
+    marginVertical: 8,
+    padding: 10,
+    borderRadius: 10,
+  },
   products: {
     marginHorizontal: 8,
     marginVertical: 8,
@@ -263,11 +239,11 @@ const RemedyResearchesContainer = withStyles(RemedyResearches, () => ({
 function mapStateToProps(state) {
   return {
     remedy: state.remedy.remedy,
-    notification: state.remedy.notification,
-    status: state.remedy.status,
     user: state.auth.user,
-    research: state.remedy.research,
+    verification: state.verification.verification,
+    status: state.verification.status,
+    notification: state.verification.notification,
   };
 }
 
-export default connect(mapStateToProps, Actions)(RemedyResearchesContainer);
+export default connect(mapStateToProps, Actions)(VerificationContainer);

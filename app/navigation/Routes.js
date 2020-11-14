@@ -10,6 +10,9 @@ import ScanRemedy from "@app/containers/layouts/remedy/scanRemedy.js";
 import RemedyResults from "@app/containers/layouts/remedy/remedyResults.js";
 import RemedyResearches from "@app/containers/layouts/remedy/remedyResearches.js";
 
+import VerificationList from "@app/containers/layouts/verification/verificationList.js";
+import Verification from "@app/containers/layouts/verification/verification.js";
+
 import { ArrowBackIcon } from "@app/assets/icons";
 import { TopNavigationBar } from "./components/topNavigationBar";
 
@@ -50,10 +53,23 @@ const RemedyNavigationMap = createStackNavigator(
   }
 );
 
+const VerificationNavigationMap = createStackNavigator(
+  {
+    ["Verification List"]: VerificationList,
+    ["Verification"]: Verification,
+  },
+  {
+    defaultNavigationOptions: {
+      headerShown: false,
+    },
+  }
+);
+
 const DashboardNavigationMap = createStackNavigator(
   {
     ["Home"]: HomeScreen,
     ["Scan Remedy"]: RemedyNavigationMap,
+    ["Verification List"]: VerificationNavigationMap,
   },
   {
     defaultNavigationOptions: MenuTopNavigationParams,

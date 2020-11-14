@@ -2,14 +2,18 @@ import React, { Component, Fragment } from "react";
 import { ActivityIndicator, TouchableOpacity, View, Image } from "react-native";
 import * as Permissions from "expo-permissions";
 import * as ImagePicker from "expo-image-picker";
+import uuid from "uuid";
 
-import { CameraIcon } from "@app/assets/icons";
+import * as firebase from "firebase";
+import firebaseConfig from "@app/config/firebase";
 
+import { PhotoIcon, CameraIcon } from "@app/assets/icons";
+
+firebase.initializeApp(firebaseConfig);
 export default class ImageUpload extends Component {
   state = {
     image: null,
     uploading: false,
-    user: "abc-123-1",
   };
 
   async componentDidMount() {
@@ -19,21 +23,29 @@ export default class ImageUpload extends Component {
 
   render() {
     let { image, uploading } = this.state;
+
     return (
       <View
         style={{
           flexDirection: "row",
-          width: 120,
+          width: 200,
         }}
       >
         {image ? (
-          <Image source={{ uri: image }} style={{ width: 100, height: 100 }} />
+          <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />
         ) : uploading ? (
-          <ActivityIndicator />
+          <View
+            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+          >
+            <ActivityIndicator />
+          </View>
         ) : (
           <Fragment>
-            <TouchableOpacity onPress={this._takePhoto} style={{ flex: 1 }}>
-              <CameraIcon style={{ width: 50, height: 50 }} />
+            <TouchableOpacity onPress={this._pickImage}>
+              <PhotoIcon style={{ width: 100, height: 100 }} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={this._takePhoto}>
+              <CameraIcon style={{ width: 100, height: 100 }} />
             </TouchableOpacity>
           </Fragment>
         )}
@@ -48,16 +60,27 @@ export default class ImageUpload extends Component {
       base64: true,
     });
 
-    this.props.onFinishUploading(pickerResult.base64);
+    this._handleImagePicked(pickerResult);
+  };
+
+  _pickImage = async () => {
+    let pickerResult = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: true,
+      aspect: [1, 1],
+      base64: true,
+    });
+
+    this._handleImagePicked(pickerResult);
   };
 
   _handleImagePicked = async (pickerResult) => {
     try {
       this.setState({ uploading: true });
 
-      this.props.onFinishUploading();
       if (!pickerResult.cancelled) {
+        let uploadUrl = await uploadImageAsync(pickerResult.uri);
         this.setState({ image: uploadUrl });
+        this.props.onFinishUploading(uploadUrl, pickerResult.base64);
       }
     } catch (e) {
     } finally {
@@ -67,26 +90,31 @@ export default class ImageUpload extends Component {
 }
 
 async function uploadImageAsync(uri) {
-  const blob = await new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.onload = function () {
-      resolve(xhr.response);
-    };
-    xhr.onerror = function (e) {
-      reject(new TypeError("Network request failed"));
-    };
-    xhr.responseType = "blob";
-    xhr.open("GET", uri, true);
-    xhr.send(null);
-  });
+  // const blob = await new Promise((resolve, reject) => {
+  //   const xhr = new XMLHttpRequest();
+  //   xhr.onerror = reject;
+  //   xhr.onreadystatechange = () => {
+  //     if (xhr.readyState === 4) {
+  //       resolve(xhr.response);
+  //     }
+  //   };
+  //   xhr.open("GET", uri);
+  //   xhr.responseType = "blob"; // convert type
+  //   xhr.send();
+  // });
 
-  let reader = new FileReader();
-  reader.readAsDataURL(blob);
-  reader.onloadend = function () {
-    let base64data = reader.result;
-  };
+  const response = await fetch(uri);
+  const blob = await response.blob();
+
+  console.log(blob);
+
+  const ref = firebase
+    .storage()
+    .ref()
+    .child("images/" + new Date().toString());
+  const snapshot = await ref.put(blob);
 
   blob.close();
 
-  return base64data;
+  return await snapshot.ref.getDownloadURL();
 }

@@ -10,24 +10,120 @@ import { NameValidator } from "@app/validators";
 import ValidationInput from "../../../components/common/ValidationInput";
 
 class RemedyResults extends Component {
+  getRemedyStage = (percentage) => {
+    let stage = "Stage 1";
+
+    if (parseFloat(percentage) < 30) {
+      stage = "Stage 1";
+    } else if (parseFloat(percentage) > 30 && parseFloat(percentage) < 70) {
+      stage = "Stage 2";
+    } else if (parseFloat(percentage) > 70) {
+      stage = "Stage 3";
+    } else {
+      stage = "Stage 1";
+    }
+
+    return stage;
+  };
+
   render() {
-    const { themedStyle } = this.props;
+    const {
+      themedStyle,
+      remedy: { image, remedyClass, result_percentage },
+    } = this.props;
     return (
       <ScrollableAvoidKeyboardComponent style={themedStyle.container}>
         <LinearGradient colors={["#077806", "#ffffff"]} style={{ flex: 1 }}>
           <View style={themedStyle.mainContainer}>
             <View style={[themedStyle.imageContainer]}>
               <Image
-                source={cameraPlaceholder}
-                style={{ width: "100%", height: 250 }}
+                source={{ uri: image }}
+                style={{ width: 200, height: 200 }}
               />
             </View>
             <View style={themedStyle.valueContainer}>
               <Text
                 style={{ color: "#ffffff", fontSize: 18, marginBottom: 10 }}
               >
-                Insert the following values:
+                Disorder Type :
               </Text>
+              <Text
+                style={{ color: "#00420a", fontSize: 18, marginBottom: 10 }}
+              >
+                {` ${remedyClass}`}
+              </Text>
+            </View>
+            <View style={themedStyle.valueContainer}>
+              <Text
+                style={{ color: "#ffffff", fontSize: 18, marginBottom: 10 }}
+              >
+                Disorder Degree :
+              </Text>
+              <Text
+                style={{ color: "#00420a", fontSize: 18, marginBottom: 10 }}
+              >
+                {` ${this.getRemedyStage(result_percentage)}`}
+              </Text>
+            </View>
+            <View style={themedStyle.soilContainer}>
+              <View style={themedStyle.soilCard}>
+                <Text
+                  style={{
+                    color: "#ffffff",
+                    fontSize: 20,
+                    fontWeight: "600",
+                  }}
+                >
+                  12
+                </Text>
+                <Text
+                  style={{
+                    color: "#ffffff",
+                    fontSize: 20,
+                    fontWeight: "600",
+                    marginVertical: 8,
+                    marginHorizontal: 4,
+                  }}
+                >
+                  N
+                </Text>
+              </View>
+              <View style={themedStyle.soilCard}>
+                <Text
+                  style={{ color: "#ffffff", fontSize: 20, fontWeight: "600" }}
+                >
+                  15
+                </Text>
+                <Text
+                  style={{
+                    color: "#ffffff",
+                    fontSize: 20,
+                    fontWeight: "600",
+                    marginVertical: 8,
+                    marginHorizontal: 4,
+                  }}
+                >
+                  P
+                </Text>
+              </View>
+              <View style={themedStyle.soilCard}>
+                <Text
+                  style={{ color: "#ffffff", fontSize: 20, fontWeight: "600" }}
+                >
+                  23
+                </Text>
+                <Text
+                  style={{
+                    color: "#ffffff",
+                    fontSize: 20,
+                    fontWeight: "600",
+                    marginVertical: 8,
+                    marginHorizontal: 4,
+                  }}
+                >
+                  K
+                </Text>
+              </View>
             </View>
             <View style={themedStyle.buttonContainer}>
               <Button
@@ -55,27 +151,42 @@ const RemedyResultsContainer = withStyles(RemedyResults, () => ({
     flex: 1,
   },
   imageContainer: {
-    justifyContent: "center",
     alignItems: "center",
-    minHeight: 250,
-    marginVertical: 8,
-    marginHorizontal: 8,
+    marginVertical: 16,
   },
   mainContainer: {
     flex: 1,
   },
   valueContainer: {
+    flexDirection: "row",
     marginHorizontal: 8,
     marginVertical: 8,
   },
   textInput: {
     marginTop: 8,
   },
+  soilContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginHorizontal: 8,
+    marginVertical: 8,
+  },
+  soilCard: {
+    flexDirection: "column",
+    justifyContent: "center",
+    backgroundColor: "#00420a",
+    marginHorizontal: 8,
+    marginVertical: 8,
+    padding: 30,
+    borderRadius: 10,
+  },
   buttonContainer: { marginVertical: 8, marginHorizontal: 8, marginBottom: 20 },
 }));
 
 function mapStateToProps(state) {
-  return {};
+  return {
+    remedy: state.remedy.remedy,
+  };
 }
 
 export default connect(mapStateToProps, Actions)(RemedyResultsContainer);

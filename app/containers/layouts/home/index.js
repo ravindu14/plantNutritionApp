@@ -80,7 +80,7 @@ class HomeScreen extends Component {
               marginTop: 10,
             }}
             textStyle={{ color: "#ffffff", fontWeight: "bold" }}
-            onPress={() => this.props.navigate("Scan Remedy")}
+            onPress={() => this.props.navigate("Verification List")}
           >
             Verification Requests
           </Button>
