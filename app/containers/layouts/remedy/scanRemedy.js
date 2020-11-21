@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { View, StyleSheet, Image } from "react-native";
+import { View, StyleSheet, Image, ActivityIndicator } from "react-native";
 import { List, withStyles, Avatar, Text, Button } from "react-native-ui-kitten";
 import { connect } from "react-redux";
 import { LinearGradient } from "expo-linear-gradient";
@@ -10,6 +10,8 @@ import { NumberValidator } from "@app/validators";
 import ValidationInput from "../../../components/common/ValidationInput";
 import ImageUpload from "@app/components/common/ImageUpload";
 import { getRemedyDetails } from "@app/actions/remedy";
+import Alert from "@app/components/Alert";
+import { ASYNC_STATUS } from "@app/constants/async";
 
 class ScanRemedy extends Component {
   constructor() {
@@ -52,7 +54,7 @@ class ScanRemedy extends Component {
   };
 
   render() {
-    const { themedStyle } = this.props;
+    const { themedStyle, notification, status } = this.props;
     const { phValue, cValue, cvValue, mvValue } = this.state;
 
     return (
@@ -97,15 +99,24 @@ class ScanRemedy extends Component {
                 onChangeText={(cvValue) => this.onChangeFormField({ cvValue })}
               />
             </View>
-            <View style={themedStyle.buttonContainer}>
-              <Button
-                size="large"
-                style={themedStyle.SignUpButton}
-                onPress={this.onSubmitDetails}
-              >
-                Predict
-              </Button>
-            </View>
+            {notification !== null && (
+              <Alert status={Alert.STATUS.DANGER}>{notification}</Alert>
+            )}
+            {status === ASYNC_STATUS.LOADING ? (
+              <View style={themedStyle.buttonContainer}>
+                <ActivityIndicator size="large" color="#ffffff" />
+              </View>
+            ) : (
+              <View style={themedStyle.buttonContainer}>
+                <Button
+                  size="large"
+                  style={themedStyle.SignUpButton}
+                  onPress={this.onSubmitDetails}
+                >
+                  Predict
+                </Button>
+              </View>
+            )}
           </View>
         </LinearGradient>
       </ScrollableAvoidKeyboardComponent>
@@ -142,7 +153,10 @@ const ScanRemedyContainer = withStyles(ScanRemedy, () => ({
 }));
 
 function mapStateToProps(state) {
-  return {};
+  return {
+    notification: state.remedy.notification,
+    status: state.remedy.status,
+  };
 }
 
 export default connect(mapStateToProps, Actions)(ScanRemedyContainer);

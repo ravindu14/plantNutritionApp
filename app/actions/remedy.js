@@ -10,64 +10,78 @@ import { navigate } from "@app/actions/routes";
 
 export function getRemedyDetails(image, baseString, soilData) {
   return (dispatch, getState, serviceManager) => {
-    dispatch({
-      type: REMEDY_GET_SUCCESS,
-      payload: {
-        image,
-        remedyClass: "Guava nitrogen deficiency",
-        result_percentage: "79",
-        nValue: "4",
-        pValue: "5",
-        kValue: "6",
-      },
-    });
-    dispatch(navigate("Remedy Results"));
-    // dispatch({ type: REMEDY_INIT });
+    // dispatch({
+    //   type: REMEDY_GET_SUCCESS,
+    //   payload: {
+    //     image,
+    //     remedyClass: "Guava nitrogen deficiency",
+    //     result_percentage: "79",
+    //     nValue: "4",
+    //     pValue: "5",
+    //     kValue: "6",
+    //   },
+    // });
+    // dispatch(navigate("Remedy Results"));
+    dispatch({ type: REMEDY_INIT });
 
-    // const remedyService = serviceManager.get("RemedyService");
+    const remedyService = serviceManager.get("RemedyService");
 
-    // remedyService
-    //   .getRemedyType({ img: baseString })
-    //   .then((response) => {
-    //     let class = response.data.class;
+    remedyService
+      .getRemedyType({ img: baseString })
+      .then((response) => {
+        let remedyClass = response.data.class;
 
-    //     remedyService
-    //       .getRemedyDetails({ img: baseString })
-    //       .then((response) => {
-    //         let result = response.data.result;
-    //         let result_percentage = response.data.result_percentage;
+        remedyService
+          .getRemedyDetails({ img: baseString })
+          .then((response) => {
+            let result = response.data.result;
+            let result_percentage = response.data.result_percentage;
 
-    //         remedyService
-    //           .getSoilDetails({ ...soilData })
-    //           .then((response) => {
-    //             let soil = response.data.result;
+            dispatch({
+              type: REMEDY_GET_SUCCESS,
+              payload: {
+                nValue: "4",
+                pValue: "5",
+                kValue: "6",
+                image,
+                remedyClass,
+                result,
+                result_percentage,
+              },
+            });
+            dispatch(navigate("Remedy Results"));
 
-    //             dispatch({
-    //               type: REMEDY_GET_SUCCESS,
-    //               payload: { ...soil, image, class, result, result_percentage },
-    //             });
-    //             dispatch(navigate("Result Screen"));
-    //           })
-    //           .catch(() => {
-    //             dispatch({
-    //               type: HANDLE_FAILURE,
-    //               payload: { message: "Request Failed" },
-    //             });
-    //           });
-    //       })
-    //       .catch(() => {
-    //         dispatch({
-    //           type: HANDLE_FAILURE,
-    //           payload: { message: "Request Failed" },
-    //         });
-    //       });
-    //   })
-    //   .catch(() => {
-    //     dispatch({
-    //       type: HANDLE_FAILURE,
-    //       payload: { message: "Request Failed" },
-    //     });
-    //   });
+            // remedyService
+            //   .getSoilDetails({ ...soilData })
+            //   .then((response) => {
+            //     let soil = response.data.result;
+
+            //     dispatch({
+            //       type: REMEDY_GET_SUCCESS,
+            //       payload: { ...soil, image, class, result, result_percentage },
+            //     });
+            //     dispatch(navigate("Remedy Results"));
+            //   })
+            //   .catch(() => {
+            //     dispatch({
+            //       type: HANDLE_FAILURE,
+            //       payload: { message: "Request Failed" },
+            //     });
+            //   });
+          })
+          .catch(() => {
+            dispatch({
+              type: HANDLE_FAILURE,
+              payload: { message: "Request Failed" },
+            });
+          });
+      })
+      .catch(() => {
+        dispatch({
+          type: HANDLE_FAILURE,
+          payload: { message: "Request Failed" },
+        });
+      });
   };
 }
 

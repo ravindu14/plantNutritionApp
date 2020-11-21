@@ -11,7 +11,7 @@ import configureStore from "./app/store";
 
 const settings = {
   api: {
-    baseUrl: "http://localhost:8080",
+    baseUrl: "https://nutrition-app-124.herokuapp.com",
   },
 };
 

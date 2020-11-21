@@ -34,8 +34,15 @@ class RemedyResearches extends Component {
   onRequestVerifications = () => {
     const {
       user: { username, researchCenter },
-      research: { deficiency, findings, products },
-      remedy: { image, result_percentage, nValue, pValue, kValue },
+      research,
+      remedy: {
+        image,
+        result_percentage,
+        nValue,
+        pValue,
+        kValue,
+        remedyClass: deficiency,
+      },
     } = this.props;
 
     this.props.createVerification({
@@ -43,8 +50,8 @@ class RemedyResearches extends Component {
       username,
       deficiency,
       stage: this.getRemedyStage(result_percentage),
-      findings,
-      products,
+      findings: research ? research.findings : "",
+      products: research ? research.products : [],
       researchCenter,
       image,
       nValue,
@@ -257,7 +264,12 @@ const RemedyResearchesContainer = withStyles(RemedyResearches, () => ({
     padding: 10,
     borderRadius: 10,
   },
-  buttonContainer: { marginVertical: 8, marginHorizontal: 8, marginBottom: 20 },
+  buttonContainer: {
+    marginVertical: 8,
+    marginHorizontal: 8,
+    marginBottom: 20,
+    marginTop: 20,
+  },
 }));
 
 function mapStateToProps(state) {

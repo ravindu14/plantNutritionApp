@@ -80,7 +80,10 @@ export default class ImageUpload extends Component {
       if (!pickerResult.cancelled) {
         let uploadUrl = await uploadImageAsync(pickerResult.uri);
         this.setState({ image: uploadUrl });
-        this.props.onFinishUploading(uploadUrl, pickerResult.base64);
+        this.props.onFinishUploading(
+          uploadUrl,
+          `data:image/jpeg;base64,${pickerResult.base64}`
+        );
       }
     } catch (e) {
     } finally {
