@@ -5,7 +5,7 @@ class RemedyService {
   api: ApiServiceInterface;
 
   endpoint: string = "/research";
-  publicIp: string = "3.139.86.169";
+  publicIp: string = "3.15.14.40";
 
   constructor(apiService: ApiServiceInterface) {
     this.api = apiService;
@@ -27,6 +27,10 @@ class RemedyService {
 
   getResearchDetails(query: Object = {}) {
     return this.api.get(`${this.endpoint}/get-research`, query);
+  }
+
+  getSoilDetails(payload: Object = {}) {
+    return axios.post("http://3.6.182.88:5001/NPK_Calculation", payload);
   }
 }
 

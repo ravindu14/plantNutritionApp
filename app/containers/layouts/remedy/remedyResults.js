@@ -29,7 +29,7 @@ class RemedyResults extends Component {
   render() {
     const {
       themedStyle,
-      remedy: { image, remedyClass, result_percentage },
+      remedy: { image, remedyClass, result_percentage, kValue, nValue, pValue },
     } = this.props;
     return (
       <ScrollableAvoidKeyboardComponent style={themedStyle.container}>
@@ -74,7 +74,7 @@ class RemedyResults extends Component {
                     fontWeight: "600",
                   }}
                 >
-                  12
+                  {nValue}
                 </Text>
                 <Text
                   style={{
@@ -83,6 +83,8 @@ class RemedyResults extends Component {
                     fontWeight: "600",
                     marginVertical: 8,
                     marginHorizontal: 4,
+                    marginLeft: "auto",
+                    marginRight: "auto",
                   }}
                 >
                   N
@@ -92,7 +94,7 @@ class RemedyResults extends Component {
                 <Text
                   style={{ color: "#ffffff", fontSize: 20, fontWeight: "600" }}
                 >
-                  15
+                  {pValue}
                 </Text>
                 <Text
                   style={{
@@ -101,6 +103,8 @@ class RemedyResults extends Component {
                     fontWeight: "600",
                     marginVertical: 8,
                     marginHorizontal: 4,
+                    marginLeft: "auto",
+                    marginRight: "auto",
                   }}
                 >
                   P
@@ -110,7 +114,7 @@ class RemedyResults extends Component {
                 <Text
                   style={{ color: "#ffffff", fontSize: 20, fontWeight: "600" }}
                 >
-                  23
+                  {kValue}
                 </Text>
                 <Text
                   style={{
@@ -119,6 +123,8 @@ class RemedyResults extends Component {
                     fontWeight: "600",
                     marginVertical: 8,
                     marginHorizontal: 4,
+                    marginLeft: "auto",
+                    marginRight: "auto",
                   }}
                 >
                   K

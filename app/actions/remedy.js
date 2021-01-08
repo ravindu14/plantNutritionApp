@@ -10,18 +10,6 @@ import { navigate } from "@app/actions/routes";
 
 export function getRemedyDetails(image, baseString, soilData) {
   return (dispatch, getState, serviceManager) => {
-    // dispatch({
-    //   type: REMEDY_GET_SUCCESS,
-    //   payload: {
-    //     image,
-    //     remedyClass: "Guava nitrogen deficiency",
-    //     result_percentage: "79",
-    //     nValue: "4",
-    //     pValue: "5",
-    //     kValue: "6",
-    //   },
-    // });
-    // dispatch(navigate("Remedy Results"));
     dispatch({ type: REMEDY_INIT });
 
     const remedyService = serviceManager.get("RemedyService");
@@ -37,37 +25,33 @@ export function getRemedyDetails(image, baseString, soilData) {
             let result = response.data.result;
             let result_percentage = response.data.result_percentage;
 
-            dispatch({
-              type: REMEDY_GET_SUCCESS,
-              payload: {
-                nValue: "4",
-                pValue: "5",
-                kValue: "6",
-                image,
-                remedyClass,
-                result,
-                result_percentage,
-              },
-            });
-            dispatch(navigate("Remedy Results"));
+            remedyService
+              .getSoilDetails({ ...soilData })
+              .then((res) => {
+                let kValue = res.data.kValue;
+                let nValue = res.data.nValue;
+                let pValue = res.data.pValue;
 
-            // remedyService
-            //   .getSoilDetails({ ...soilData })
-            //   .then((response) => {
-            //     let soil = response.data.result;
-
-            //     dispatch({
-            //       type: REMEDY_GET_SUCCESS,
-            //       payload: { ...soil, image, class, result, result_percentage },
-            //     });
-            //     dispatch(navigate("Remedy Results"));
-            //   })
-            //   .catch(() => {
-            //     dispatch({
-            //       type: HANDLE_FAILURE,
-            //       payload: { message: "Request Failed" },
-            //     });
-            //   });
+                dispatch({
+                  type: REMEDY_GET_SUCCESS,
+                  payload: {
+                    kValue: parseFloat(kValue).toFixed(2),
+                    nValue: parseFloat(nValue).toFixed(2),
+                    pValue: parseFloat(pValue).toFixed(2),
+                    image,
+                    remedyClass,
+                    result,
+                    result_percentage,
+                  },
+                });
+                dispatch(navigate("Remedy Results"));
+              })
+              .catch(() => {
+                dispatch({
+                  type: HANDLE_FAILURE,
+                  payload: { message: "Request Failed" },
+                });
+              });
           })
           .catch(() => {
             dispatch({
